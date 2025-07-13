@@ -141,8 +141,17 @@
             const img = popupContent.querySelector('img');
             img.addEventListener('click', () => {
               const fullSrc = img.getAttribute('data-full');
+
+              // Hinweis anzeigen
+              const loadingMsg = document.createElement('div');
+              loadingMsg.textContent = "🔄 Bild wird geladen...";
+              loadingMsg.style = "color:white; background:rgba(0,0,0,0.6); padding:5px; margin-top:5px; font-size:14px;";
+              popupContent.appendChild(loadingMsg);
+
               const tempImg = new Image();
               tempImg.onload = () => {
+                popupContent.removeChild(loadingMsg); // Hinweis entfernen
+
                 const pswp = new PhotoSwipe({
                   dataSource: [{
                     src: fullSrc,
