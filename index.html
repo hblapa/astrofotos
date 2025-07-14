@@ -41,7 +41,7 @@
       height: auto;
       cursor: pointer;
     }
-    select {
+    select, input[type="checkbox"] {
       margin: 5px 0;
       padding: 4px;
       font-size: 14px;
@@ -55,6 +55,7 @@
   <select id="typeFilter"><option value="Alle">Alle</option></select><br />
   <label for="yearFilter">Aufnahmejahr:</label><br />
   <select id="yearFilter"><option value="Alle">Alle</option></select><br />
+  <label><input type="checkbox" id="toggleSeasons" /> Jahreszeiten-Layer</label><br />
   <button id="resetViewBtn" style="margin-top:10px; padding:5px 10px;">🔁 Ansicht zurücksetzen</button>
 </div>
 
@@ -74,30 +75,156 @@
   L.imageOverlay('background_4k.jpg', bounds).addTo(map);
   map.fitBounds(bounds);
 
-    for (let ra = 0; ra <= 360; ra += 30) {
-      L.polyline([[-90, ra], [90, ra]], { color: 'white', weight: 0.5, opacity: 0.3, dashArray: '4,4' }).addTo(map);
-    }
-    for (let dec = -60; dec <= 60; dec += 30) {
-      L.polyline([[dec, 0], [dec, 360]], { color: 'white', weight: 0.5, opacity: 0.3, dashArray: '4,4' }).addTo(map);
-    }
+  // Gitterlinien
+  for (let ra = 0; ra <= 360; ra += 30) {
+    L.polyline([[-90, ra], [90, ra]], { color: 'white', weight: 0.5, opacity: 0.3, dashArray: '4,4' }).addTo(map);
+  }
+  for (let dec = -60; dec <= 60; dec += 30) {
+    L.polyline([[dec, 0], [dec, 360]], { color: 'white', weight: 0.5, opacity: 0.3, dashArray: '4,4' }).addTo(map);
+  }
 
-    for (let ra = 0; ra <= 360; ra += 30) {
-      const raHours = (ra / 15) % 24;
-      const label = `${raHours}h`;
-      L.marker([85, ra], {
-        icon: L.divIcon({ className: 'ra-label', html: `<div style="color:white;font-size:10px;text-align:center;">${label}</div>`, iconSize: [30, 12], iconAnchor: [15, 0] }),
-        interactive: false
-      }).addTo(map);
-    }
+  // RA-Labels
+  for (let ra = 0; ra <= 360; ra += 30) {
+    const raHours = (ra / 15) % 24;
+    const label = `${raHours}h`;
+    L.marker([85, ra], {
+      icon: L.divIcon({ className: 'ra-label', html: `<div style="color:white;font-size:10px;text-align:center;">${label}</div>`, iconSize: [30, 12], iconAnchor: [15, 0] }),
+      interactive: false
+    }).addTo(map);
+  }
 
-    for (let dec = -60; dec <= 60; dec += 30) {
-      const label = `${dec >= 0 ? '+' : ''}${dec}°`;
-      L.marker([dec, 2], {
-        icon: L.divIcon({ className: 'dec-label', html: `<div style="color:white;font-size:10px;">${label}</div>`, iconSize: [30, 12], iconAnchor: [0, 6] }),
-        interactive: false
-      }).addTo(map);
-    }
+  // Dec-Labels
+  for (let dec = -60; dec <= 60; dec += 30) {
+    const label = `${dec >= 0 ? '+' : ''}${dec}°`;
+    L.marker([dec, 2], {
+      icon: L.divIcon({ className: 'dec-label', html: `<div style="color:white;font-size:10px;">${label}</div>`, iconSize: [30, 12], iconAnchor: [0, 6] }),
+      interactive: false
+    }).addTo(map);
+  }
 
+  // Jahreszeiten-Layer
+// 1. Alle Saison-Layer in einem Array
+const seasonLayers = [
+  // Herbst/Winter : RA 30°–60°
+  L.rectangle([[-90, 30], [90, 60]], { color: 'darkslateblue', fillOpacity: 0.07, weight: 0 }),
+
+  // Winter/Frühling : RA 120°–150°
+  L.rectangle([[-90, 120], [90, 150]], { color: 'teal', fillOpacity: 0.07, weight: 0 }),
+
+  // Frühling/Sommer : RA 210°–240°
+  L.rectangle([[-90, 210], [90, 240]], { color: 'limegreen', fillOpacity: 0.07, weight: 0 }),
+
+  // Sommer/Herbst : RA 300°–330°
+  L.rectangle([[-90, 300], [90, 330]], { color: 'coral', fillOpacity: 0.07, weight: 0 }),
+
+  // Winter: RA 60°–120°
+  L.rectangle([[-90, 60], [90, 120]], { color: 'lightblue', fillOpacity: 0.15, weight: 0 }),
+  L.marker([-65, 90], {
+    icon: L.divIcon({
+      html: '<div style="color:lightblue;font-weight:bold;">Winter</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  }),
+
+  // Frühling: RA 150°–210°
+  L.rectangle([[-90, 150], [90, 210]], { color: 'green', fillOpacity: 0.15, weight: 0 }),
+  L.marker([-65, 180], {
+    icon: L.divIcon({
+      html: '<div style="color:green;font-weight:bold;">Frühling</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  }),
+
+  // Sommer: RA 240°–300°
+  L.rectangle([[-90, 240], [90, 300]], { color: 'tomato', fillOpacity: 0.15, weight: 0 }),
+  L.marker([-65, 270], {
+    icon: L.divIcon({
+      html: '<div style="color:tomato;font-weight:bold;">Sommer</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  }),
+
+  // Herbst: RA 330°–360° und RA 0°–30°
+  L.rectangle([[-90, 330], [90, 360]], { color: 'orange', fillOpacity: 0.15, weight: 0 }),
+  L.rectangle([[-90, 0],    [90, 30 ]], { color: 'orange', fillOpacity: 0.15, weight: 0 }),
+  L.marker([-65, 345], {
+    icon: L.divIcon({
+      html: '<div style="color:orange;font-weight:bold;">Herbst</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  }),
+  L.marker([-65, 20], {
+    icon: L.divIcon({
+      html: '<div style="color:orange;font-weight:bold;">Herbst</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  })
+];
+
+// 2. Monatsnamen + ihre RA-Positionen
+const monthData = [
+  ['Okt',  15],
+  ['Nov',  45],
+  ['Dez',  75],
+  ['Jan', 105],
+  ['Feb', 135],
+  ['Mär', 165],
+  ['Apr', 195],
+  ['Mai', 225],
+  ['Jun', 255],
+  ['Jul', 285],
+  ['Aug', 315],
+  ['Sep', 345]
+];
+
+// 3. Aus monthData ein Array von L.marker-Objekten bauen
+const monthMarkers = monthData.map(([name, lon]) =>
+  L.marker([-70, lon], {
+    icon: L.divIcon({
+      html: `<div style="
+        color: #eee;
+        font-weight: bold;
+        font-family: sans-serif;
+        font-size: 9px;
+      ">${name}</div>`,
+      iconSize: [40, 14],
+      iconAnchor: [20, 0],
+      className: 'season-label'
+    }),
+    interactive: false
+  })
+);
+
+// 4. Alles in einer LayerGroup bündeln
+const jahreszeitenLayerGroup = L.layerGroup([
+  ...seasonLayers,
+  ...monthMarkers
+]);
+
+  document.getElementById("toggleSeasons").addEventListener("change", (e) => {
+    if (e.target.checked) {
+      jahreszeitenLayerGroup.addTo(map);
+    } else {
+      map.removeLayer(jahreszeitenLayerGroup);
+    }
+  });
+
+  // Marker-Logik
   const markers = [];
   const allData = [];
 
@@ -141,17 +268,8 @@
             const img = popupContent.querySelector('img');
             img.addEventListener('click', () => {
               const fullSrc = img.getAttribute('data-full');
-
-              // Hinweis anzeigen
-              const loadingMsg = document.createElement('div');
-              loadingMsg.textContent = "🔄 Bild wird geladen...";
-              loadingMsg.style = "color:white; background:rgba(0,0,0,0.6); padding:5px; margin-top:5px; font-size:14px;";
-              popupContent.appendChild(loadingMsg);
-
               const tempImg = new Image();
               tempImg.onload = () => {
-                popupContent.removeChild(loadingMsg); // Hinweis entfernen
-
                 const pswp = new PhotoSwipe({
                   dataSource: [{
                     src: fullSrc,
