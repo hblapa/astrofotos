@@ -24,25 +24,25 @@
       background-color: #121212;
     }
 
-    #title {
-      position: absolute;
-      top: 10px;
-      left: 50%;            
-      transform: translateX(-50%);
-      background: rgba(18, 18, 18, 0.7);
-      color: white;
-      padding: 10px 15px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 6px;
-      z-index: 1000;
-      white-space: nowrap;
-    }
+     #title {
+       position: absolute;
+       top: 10px;
+       left: 50%;            /* horizontal in der Mitte */
+       transform: translateX(-50%); /* genau zentrieren */
+       background: rgba(18, 18, 18, 0.7);
+       color: white;
+       padding: 10px 15px;
+       font-size: 18px;
+       font-weight: bold;
+       border-radius: 6px;
+       z-index: 1000;
+       white-space: nowrap; /* verhindert Zeilenumbruch */
+      }
 
     .custom-thumb img {
-      border: 2px solid white;
-      border-radius: 4px;
-      box-shadow: 0 0 5px rgba(255,255,255,0.5);
+    border: 2px solid white;
+    border-radius: 4px;
+    box-shadow: 0 0 5px rgba(255,255,255,0.5);
     }
 
     #controls {
@@ -54,36 +54,21 @@
       padding: 10px;
       z-index: 1000;
       border-radius: 6px;
-      max-width: 180px;
-      font-size: 14px;
     }
-
     #map {
       width: 100%;
       height: 100%;
-      background-color: #121212;
+      background-color: #121212; /* Anthrazit als Hintergrund */
     }
-
     .leaflet-popup-content img {
       max-width: 100%;
       height: auto;
       cursor: pointer;
     }
-
-    select, input[type="checkbox"], button {
+    select, input[type="checkbox"] {
       margin: 5px 0;
       padding: 4px;
       font-size: 14px;
-      width: 100%;
-      box-sizing: border-box;
-      background: #222;
-      color: white;
-      border: 1px solid #444;
-      border-radius: 4px;
-    }
-    input[type="checkbox"] {
-      width: auto;
-      margin-right: 6px;
     }
   </style>
 </head>
@@ -91,18 +76,13 @@
 
 <div id="title">Astrofotos sortiert nach Himmelskoordinaten (RA/DEC)</div>
 
+
 <div id="controls">
   <label for="typeFilter">Typ:</label><br />
   <select id="typeFilter"><option value="Alle">Alle</option></select><br />
-
   <label for="yearFilter">Aufnahmejahr:</label><br />
   <select id="yearFilter"><option value="Alle">Alle</option></select><br />
-
-  <label for="nameFilter">Name:</label><br />
-  <select id="nameFilter"><option value="Alle">Alle</option></select><br />
-
   <label><input type="checkbox" id="toggleSeasons" /> Jahreszeiten-Layer</label><br />
-
   <button id="resetViewBtn" style="margin-top:10px; padding:5px 10px;">🔁 Ansicht zurücksetzen</button>
 </div>
 
@@ -150,379 +130,247 @@
   }
 
   // Jahreszeiten-Layer
-  const seasonLayers = [
-    L.rectangle([[-90, 30], [90, 60]], { color: 'darkslateblue', fillOpacity: 0.07, weight: 0 }),
-    L.rectangle([[-90, 120], [90, 150]], { color: 'teal', fillOpacity: 0.07, weight: 0 }),
-    L.rectangle([[-90, 210], [90, 240]], { color: 'limegreen', fillOpacity: 0.07, weight: 0 }),
-    L.rectangle([[-90, 300], [90, 330]], { color: 'coral', fillOpacity: 0.07, weight: 0 }),
-    L.rectangle([[-90, 60], [90, 120]], { color: 'lightblue', fillOpacity: 0.15, weight: 0 }),
-    L.marker([-65, 90], {
-      icon: L.divIcon({
-        html: '<div style="color:lightblue;font-weight:bold;">Winter</div>',
-        iconSize: [60, 20],
-        iconAnchor: [30, 10],
-        className: 'season-label'
-      }),
-      interactive: false
-    }),
-    L.rectangle([[-90, 150], [90, 210]], { color: 'green', fillOpacity: 0.15, weight: 0 }),
-    L.marker([-65, 180], {
-      icon: L.divIcon({
-        html: '<div style="color:green;font-weight:bold;">Frühling</div>',
-        iconSize: [60, 20],
-        iconAnchor: [30, 10],
-        className: 'season-label'
-      }),
-      interactive: false
-    }),
-    L.rectangle([[-90, 240], [90, 300]], { color: 'tomato', fillOpacity: 0.15, weight: 0 }),
-    L.marker([-65, 270], {
-      icon: L.divIcon({
-        html: '<div style="color:tomato;font-weight:bold;">Sommer</div>',
-        iconSize: [60, 20],
-        iconAnchor: [30, 10],
-        className: 'season-label'
-      }),
-      interactive: false
-    }),
-    L.rectangle([[-90, 330], [90, 360]], { color: 'orange', fillOpacity: 0.15, weight: 0 }),
-    L.rectangle([[-90, 0],    [90, 30 ]], { color: 'orange', fillOpacity: 0.15, weight: 0 }),
-    L.marker([-65, 345], {
-      icon: L.divIcon({
-        html: '<div style="color:orange;font-weight:bold;">Herbst</div>',
-        iconSize: [60, 20],
-        iconAnchor: [30, 10],
-        className: 'season-label'
-      }),
-      interactive: false
-    }),
-    L.marker([-65, 20], {
-      icon: L.divIcon({
-        html: '<div style="color:orange;font-weight:bold;">Herbst</div>',
-        iconSize: [60, 20],
-        iconAnchor: [30, 10],
-        className: 'season-label'
-      }),
-      interactive: false
-    })
-  ];
+// 1. Alle Saison-Layer in einem Array
+const seasonLayers = [
+  // Herbst/Winter : RA 30°–60°
+  L.rectangle([[-90, 30], [90, 60]], { color: 'darkslateblue', fillOpacity: 0.07, weight: 0 }),
 
-  const monthData = [
-    ['Okt',  15],
-    ['Nov',  45],
-    ['Dez',  75],
-    ['Jan', 105],
-    ['Feb', 135],
-    ['März', 165],
-    ['Apr', 195],
-    ['Mai', 225],
-    ['Juni', 255],
-    ['Juli', 285],
-    ['Aug', 315],
-    ['Sept', 345]
-  ];
-  monthData.forEach(([m, ra]) => {
-    L.marker([85, ra], {
-      icon: L.divIcon({ className: 'ra-label', html: `<div style="color:white;font-size:10px;text-align:center;">${m}</div>`, iconSize: [30, 12], iconAnchor: [15, 0] }),
-      interactive: false
-    }).addTo(map);
-  });
+  // Winter/Frühling : RA 120°–150°
+  L.rectangle([[-90, 120], [90, 150]], { color: 'teal', fillOpacity: 0.07, weight: 0 }),
 
-  // Steuerung Jahreszeiten
-  document.getElementById('toggleSeasons').addEventListener('change', (ev) => {
-    if (ev.target.checked) {
-      seasonLayers.forEach(l => l.addTo(map));
+  // Frühling/Sommer : RA 210°–240°
+  L.rectangle([[-90, 210], [90, 240]], { color: 'limegreen', fillOpacity: 0.07, weight: 0 }),
+
+  // Sommer/Herbst : RA 300°–330°
+  L.rectangle([[-90, 300], [90, 330]], { color: 'coral', fillOpacity: 0.07, weight: 0 }),
+
+  // Winter: RA 60°–120°
+  L.rectangle([[-90, 60], [90, 120]], { color: 'lightblue', fillOpacity: 0.15, weight: 0 }),
+  L.marker([-65, 90], {
+    icon: L.divIcon({
+      html: '<div style="color:lightblue;font-weight:bold;">Winter</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  }),
+
+  // Frühling: RA 150°–210°
+  L.rectangle([[-90, 150], [90, 210]], { color: 'green', fillOpacity: 0.15, weight: 0 }),
+  L.marker([-65, 180], {
+    icon: L.divIcon({
+      html: '<div style="color:green;font-weight:bold;">Frühling</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  }),
+
+  // Sommer: RA 240°–300°
+  L.rectangle([[-90, 240], [90, 300]], { color: 'tomato', fillOpacity: 0.15, weight: 0 }),
+  L.marker([-65, 270], {
+    icon: L.divIcon({
+      html: '<div style="color:tomato;font-weight:bold;">Sommer</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  }),
+
+  // Herbst: RA 330°–360° und RA 0°–30°
+  L.rectangle([[-90, 330], [90, 360]], { color: 'orange', fillOpacity: 0.15, weight: 0 }),
+  L.rectangle([[-90, 0],    [90, 30 ]], { color: 'orange', fillOpacity: 0.15, weight: 0 }),
+  L.marker([-65, 345], {
+    icon: L.divIcon({
+      html: '<div style="color:orange;font-weight:bold;">Herbst</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  }),
+  L.marker([-65, 20], {
+    icon: L.divIcon({
+      html: '<div style="color:orange;font-weight:bold;">Herbst</div>',
+      iconSize: [60, 20],
+      iconAnchor: [30, 10],
+      className: 'season-label'
+    }),
+    interactive: false
+  })
+];
+
+// 2. Monatsnamen + ihre RA-Positionen
+const monthData = [
+  ['Okt',  15],
+  ['Nov',  45],
+  ['Dez',  75],
+  ['Jan', 105],
+  ['Feb', 135],
+  ['Mär', 165],
+  ['Apr', 195],
+  ['Mai', 225],
+  ['Jun', 255],
+  ['Jul', 285],
+  ['Aug', 315],
+  ['Sep', 345]
+];
+
+// 3. Aus monthData ein Array von L.marker-Objekten bauen
+const monthMarkers = monthData.map(([name, lon]) =>
+  L.marker([-70, lon], {
+    icon: L.divIcon({
+      html: `<div style="
+        color: #eee;
+        font-weight: bold;
+        font-family: sans-serif;
+        font-size: 9px;
+      ">${name}</div>`,
+      iconSize: [40, 14],
+      iconAnchor: [20, 0],
+      className: 'season-label'
+    }),
+    interactive: false
+  })
+);
+
+// 4. Alles in einer LayerGroup bündeln
+const jahreszeitenLayerGroup = L.layerGroup([
+  ...seasonLayers,
+  ...monthMarkers
+]);
+
+  document.getElementById("toggleSeasons").addEventListener("change", (e) => {
+    if (e.target.checked) {
+      jahreszeitenLayerGroup.addTo(map);
     } else {
-      seasonLayers.forEach(l => map.removeLayer(l));
+      map.removeLayer(jahreszeitenLayerGroup);
     }
   });
 
-  // Marker-Handling
-  const markerGroup = L.layerGroup().addTo(map);
+  // Marker-Logik
+  const markers = [];
+  const allData = [];
 
-  // Marker-Daten
-  let markers = [];
+  function updateMarkers(typeFilter, yearFilter) {
+    markers.forEach(m => map.removeLayer(m));
+    markers.length = 0;
 
-  // Sets für Filterwerte
-  let allTypes = new Set();
-  let allYears = new Set();
-  let allNames = new Set();
+    allData.forEach((row) => {
+      const typArray = row.typ ? row.typ.split(',').map(t => t.trim()) : [];
+      const jahr = row.aufnahmejahr || "";
 
-  function clearMarkers() {
-    markerGroup.clearLayers();
-    markers = [];
-  }
+      if ((typeFilter === "Alle" || typArray.includes(typeFilter)) &&
+          (yearFilter === "Alle" || jahr === yearFilter)) {
 
-  function addMarker(row) {
-    const ra = parseFloat(row.RA);
-    const dec = parseFloat(row.DEC);
-    if (isNaN(ra) || isNaN(dec)) return;
+        const lat = parseFloat(row.dec);
+        const lon = parseFloat(row.ra);
+        const name = row.name || "";
+        const image = row.image || "";
+        const thumb = row.thumb || "";
 
-    const icon = L.divIcon({
-      className: 'custom-thumb',
-      html: `<img src="${row.thumb}" width="32" height="32" alt="${row.name}" title="${row.name}">`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -16],
-      shadowSize: [0, 0],
-    });
+        if (!isNaN(lat) && !isNaN(lon) && image && thumb) {
+        const icon = L.divIcon({
+          html: `<div class="custom-thumb"><img src="${thumb}" width="60" height="40"></div>`,
+          className: "", // wichtig, sonst übernimmt Leaflet Standard-Styles
+          iconSize: [60, 40],
+          iconAnchor: [30, 20],
+          popupAnchor: [0, -20]
+        });
+          const marker = L.marker([lat, lon], { icon }).addTo(map);
 
-    const marker = L.marker([dec, ra], { icon: icon });
+          const popupContent = document.createElement('div');
+          popupContent.innerHTML = `
+            <b>${name}</b><br />
+            <img src="${thumb}" alt="${name}" data-full="${image}" style="max-width:100%; height:auto; cursor:pointer;" /><br />
+            Typ: ${typArray.join(', ')}<br />
+            Jahr: ${jahr}
+          `;
 
-    // Popup mit Foto & Details
-    marker.bindPopup(`
-      <div style="max-width: 400px;">
-        <b>${row.name}</b> (${row.typ}, ${row.aufnahmejahr})<br />
-        <img src="${row.photo}" alt="${row.name}" style="max-width:100%;cursor:pointer" />
-      </div>
-    `);
+          marker.bindPopup(popupContent);
 
-    marker.on('popupopen', (ev) => {
-      const img = ev.popup.getElement().querySelector('img');
-      if (!img) return;
+          marker.on('popupopen', () => {
+            const img = popupContent.querySelector('img');
+            img.addEventListener('click', () => {
+              const fullSrc = img.getAttribute('data-full');
+              // Hinweis anzeigen
+              const loadingMsg = document.createElement('div');
+              loadingMsg.textContent = "🔄 Bild wird geladen...";
+              loadingMsg.style = "color:white; background:rgba(0,0,0,0.6); padding:5px; margin-top:5px; font-size:14px;";
+              popupContent.appendChild(loadingMsg);
 
-      img.style.cursor = 'zoom-in';
-      img.onclick = () => {
-        openPhotoSwipe(row);
-      };
-    });
+              const tempImg = new Image();
+              tempImg.onload = () => {
+                popupContent.removeChild(loadingMsg); // Hinweis entfernen
+                const pswp = new PhotoSwipe({
+                  dataSource: [{
+                    src: fullSrc,
+                    width: tempImg.naturalWidth,
+                    height: tempImg.naturalHeight,
+                    alt: name
+                  }],
+                  showAnimationDuration: 300,
+                  hideAnimationDuration: 300,
+                  zoom: true,
+                  wheelToZoom: true,
+                  allowPanToNext: false,
+                  initialZoomLevel: 'zoom',
+                  bgOpacity: 0.9
+                });
+                pswp.init();
+              };
+              tempImg.src = fullSrc;
+            });
+          });
 
-    marker.on('click', () => {
-      // Popup geht automatisch auf bei Klick
-    });
-
-    markerGroup.addLayer(marker);
-
-    markers.push({
-      marker: marker,
-      name: row.name,
-      typ: row.typ,
-      jahr: row.aufnahmejahr
-    });
-  }
-
-  // PhotoSwipe Galerie öffnen
-  function openPhotoSwipe(entry) {
-    const pswp = new PhotoSwipe({
-      dataSource: [
-        {
-          src: entry.photo,
-          w: 1920,
-          h: 1080,
-          title: entry.name
+          markers.push(marker);
         }
-      ],
-      showHideAnimationType: 'fade',
-      bgOpacity: 0.9,
-      initialZoomLevel: 0.5
-    });
-    pswp.init();
-  }
-
-  // Filter-Funktionen
-  function filterMarkers() {
-    const typeVal = document.getElementById('typeFilter').value;
-    const yearVal = document.getElementById('yearFilter').value;
-    const nameVal = document.getElementById('nameFilter').value;
-
-    markerGroup.clearLayers();
-
-    const filtered = markers.filter(({ typ, jahr, name, marker }) => {
-      if (typeVal !== 'Alle' && typ !== typeVal) return false;
-      if (yearVal !== 'Alle' && jahr !== yearVal) return false;
-      if (nameVal !== 'Alle' && name !== nameVal) return false;
-      return true;
-    });
-
-    filtered.forEach(({ marker }) => markerGroup.addLayer(marker));
-
-    // Zoom & Popup falls nur ein Marker
-    if (filtered.length === 1) {
-      const marker = filtered[0].marker;
-      const currentZoom = map.getZoom();
-      const targetZoom = currentZoom + 1 > map.getMaxZoom() ? map.getMaxZoom() : currentZoom + 1;
-      map.setView(marker.getLatLng(), targetZoom);
-      marker.openPopup();
-    }
-  }
-
-  // Filteroptionen befüllen
-  function populateFilters() {
-    const typeFilter = document.getElementById('typeFilter');
-    const yearFilter = document.getElementById('yearFilter');
-
-    // Typen
-    const sortedTypes = Array.from(allTypes).sort((a,b) => a.localeCompare(b));
-    sortedTypes.forEach(t => {
-      const opt = document.createElement('option');
-      opt.value = t;
-      opt.textContent = t;
-      typeFilter.appendChild(opt);
-    });
-
-    // Jahre
-    const sortedYears = Array.from(allYears).sort((a,b) => b.localeCompare(a));
-    sortedYears.forEach(y => {
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
-      yearFilter.appendChild(opt);
-    });
-  }
-
-  // Namenfilter dynamisch aktualisieren
-  function updateNameFilterOptions() {
-    const typeVal = document.getElementById('typeFilter').value;
-    const yearVal = document.getElementById('yearFilter').value;
-
-    const nameFilter = document.getElementById('nameFilter');
-
-    const currentName = nameFilter.value;
-
-    const filteredNames = new Set();
-
-    markers.forEach(({ typ, jahr, name }) => {
-      let ok = true;
-      if (typeVal !== 'Alle' && typ !== typeVal) ok = false;
-      if (yearVal !== 'Alle' && jahr !== yearVal) ok = false;
-      if (ok) filteredNames.add(name);
-    });
-
-    nameFilter.innerHTML = '';
-    const optAll = document.createElement('option');
-    optAll.value = 'Alle';
-    optAll.textContent = 'Alle';
-    nameFilter.appendChild(optAll);
-
-    Array.from(filteredNames).sort((a,b) => a.localeCompare(b)).forEach(name => {
-      const option = document.createElement('option');
-      option.value = name;
-      option.textContent = name;
-      nameFilter.appendChild(option);
-    });
-
-    if (currentName !== 'Alle' && !filteredNames.has(currentName)) {
-      nameFilter.value = 'Alle';
-    } else {
-      nameFilter.value = currentName;
-    }
-  }
-
-  // Eventlistener Filter
-  document.getElementById('typeFilter').addEventListener('change', () => {
-    updateNameFilterOptions();
-    document.getElementById('nameFilter').value = 'Alle';
-    filterMarkers();
-  });
-
-  document.getElementById('yearFilter').addEventListener('change', () => {
-    updateNameFilterOptions();
-    document.getElementById('nameFilter').value = 'Alle';
-    filterMarkers();
-  });
-
-  document.getElementById('nameFilter').addEventListener('change', (e) => {
-    const nameVal = e.target.value;
-    if (nameVal === 'Alle') {
-      filterMarkers();
-    } else {
-      const typeVal = document.getElementById('typeFilter').value;
-      const yearVal = document.getElementById('yearFilter').value;
-
-      const entry = markers.find(m => m.name === nameVal && 
-        (typeVal === 'Alle' || m.typ === typeVal) &&
-        (yearVal === 'Alle' || m.jahr === yearVal)
-      );
-
-      if (entry) {
-        markerGroup.clearLayers();
-        markerGroup.addLayer(entry.marker);
-
-        const currentZoom = map.getZoom();
-        const targetZoom = currentZoom + 1 > map.getMaxZoom() ? map.getMaxZoom() : currentZoom + 1;
-        map.setView(entry.marker.getLatLng(), targetZoom);
-        entry.marker.openPopup();
-      } else {
-        filterMarkers();
-      }
-    }
-  });
-
-  // Reset-Button Ansicht
-  document.getElementById('resetViewBtn').addEventListener('click', () => {
-    map.fitBounds(bounds);
-    markerGroup.clearLayers();
-    markers.forEach(({ marker }) => markerGroup.addLayer(marker));
-    document.getElementById('typeFilter').value = 'Alle';
-    document.getElementById('yearFilter').value = 'Alle';
-    document.getElementById('nameFilter').value = 'Alle';
-    document.getElementById('toggleSeasons').checked = false;
-    seasonLayers.forEach(l => map.removeLayer(l));
-  });
-
-  // CSV laden & Marker erzeugen
-Papa.parse("marker.csv", {
-  download: true,
-  header: true,
-  complete: function(results) {
-    clearMarkers();
-
-    allTypes.clear();
-    allYears.clear();
-    allNames.clear();
-
-    results.data.forEach(function(row) {
-      if (row.name && row.RA && row.DEC) {
-        allTypes.add(row.typ);
-        allYears.add(row.aufnahmejahr);
-        allNames.add(row.name);
-        addMarker(row);
       }
     });
-
-    // Filter-Elemente im DOM holen
-    var typeSelect = document.getElementById("typeFilter");
-    var yearSelect = document.getElementById("yearFilter");
-    var nameSelect = document.getElementById("nameFilter");
-
-    // Vorherige Optionen löschen (außer erstes Default-Option)
-    function clearOptions(selectElem) {
-      while (selectElem.options.length > 1) {
-        selectElem.remove(1);
-      }
-    }
-    clearOptions(typeSelect);
-    clearOptions(yearSelect);
-    clearOptions(nameSelect);
-
-    // Options für Typen
-    Array.from(allTypes).sort().forEach(function(t) {
-      var opt = document.createElement("option");
-      opt.value = t;
-      opt.textContent = t;
-      typeSelect.appendChild(opt);
-    });
-
-    // Options für Jahre
-    Array.from(allYears).sort().forEach(function(y) {
-      var opt = document.createElement("option");
-      opt.value = y;
-      opt.textContent = y;
-      yearSelect.appendChild(opt);
-    });
-
-    // Options für Namen
-    Array.from(allNames).sort().forEach(function(n) {
-      var opt = document.createElement("option");
-      opt.value = n;
-      opt.textContent = n;
-      nameSelect.appendChild(opt);
-    });
-
-    // Filter aktualisieren (deine vorhandene Funktion)
-    filterMarkers();
   }
-});
+
+  Papa.parse("marker.csv", {
+    download: true,
+    header: true,
+    complete: function(results) {
+      allData.push(...results.data);
+
+      const typeSet = new Set();
+      const yearSet = new Set();
+
+      allData.forEach(row => {
+        if (row.typ) row.typ.split(',').forEach(t => typeSet.add(t.trim()));
+        if (row.aufnahmejahr) yearSet.add(row.aufnahmejahr);
+      });
+
+      const typeSelect = document.getElementById("typeFilter");
+      const yearSelect = document.getElementById("yearFilter");
+
+      [...typeSet].sort().forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        typeSelect.appendChild(opt);
+      });
+
+      [...yearSet].sort().forEach(y => {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+      });
+
+      typeSelect.addEventListener("change", () => updateMarkers(typeSelect.value, yearSelect.value));
+      yearSelect.addEventListener("change", () => updateMarkers(typeSelect.value, yearSelect.value));
+
+      updateMarkers("Alle", "Alle");
+    }
+  });
+
+  document.getElementById("resetViewBtn").addEventListener("click", () => map.fitBounds(bounds));
 </script>
 
 </body>
