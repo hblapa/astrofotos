@@ -272,7 +272,7 @@
     // Popup mit Foto & Details
     marker.bindPopup(`
       <div style="max-width: 400px;">
-        <b>${row.name}</b> (${row.typ}, ${row.jahr})<br />
+        <b>${row.name}</b> (${row.typ}, ${row.aufnahmejahr})<br />
         <img src="${row.photo}" alt="${row.name}" style="max-width:100%;cursor:pointer" />
       </div>
     `);
@@ -297,7 +297,7 @@
       marker: marker,
       name: row.name,
       typ: row.typ,
-      jahr: row.jahr
+      jahr: row.aufnahmejahr
     });
   }
 
@@ -469,7 +469,7 @@
       results.data.forEach(row => {
         if (row.name && row.RA && row.DEC) {
           allTypes.add(row.typ);
-          allYears.add(row.jahr);
+          allYears.add(row.aufnahmejahr);
           allNames.add(row.name);
           addMarker(row);
         }
