@@ -467,9 +467,9 @@ Papa.parse("marker.csv", {
   complete: function(results) {
     clearMarkers();
 
-    var allTypes = new Set();
-    var allYears = new Set();
-    var allNames = new Set();
+    allTypes.clear();
+    allYears.clear();
+    allNames.clear();
 
     results.data.forEach(function(row) {
       if (row.name && row.RA && row.DEC) {
