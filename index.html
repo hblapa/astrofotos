@@ -461,24 +461,68 @@
   });
 
   // CSV laden & Marker erzeugen
-  Papa.parse('marker.csv', {
-    header: true,
-    download: true,
-    complete: results => {
-      clearMarkers();
-      results.data.forEach(row => {
-        if (row.name && row.RA && row.DEC) {
-          allTypes.add(row.typ);
-          allYears.add(row.aufnahmejahr);
-          allNames.add(row.name);
-          addMarker(row);
-        }
-      });
-      populateFilters();
-      updateNameFilterOptions();
-      filterMarkers();
+Papa.parse("marker.csv", {
+  download: true,
+  header: true,
+  complete: function(results) {
+    clearMarkers();
+
+    var allTypes = new Set();
+    var allYears = new Set();
+    var allNames = new Set();
+
+    results.data.forEach(function(row) {
+      if (row.name && row.RA && row.DEC) {
+        allTypes.add(row.typ);
+        allYears.add(row.aufnahmejahr);
+        allNames.add(row.name);
+        addMarker(row);
+      }
+    });
+
+    // Filter-Elemente im DOM holen
+    var typeSelect = document.getElementById("typeFilter");
+    var yearSelect = document.getElementById("yearFilter");
+    var nameSelect = document.getElementById("nameFilter");
+
+    // Vorherige Optionen löschen (außer erstes Default-Option)
+    function clearOptions(selectElem) {
+      while (selectElem.options.length > 1) {
+        selectElem.remove(1);
+      }
     }
-  });
+    clearOptions(typeSelect);
+    clearOptions(yearSelect);
+    clearOptions(nameSelect);
+
+    // Options für Typen
+    Array.from(allTypes).sort().forEach(function(t) {
+      var opt = document.createElement("option");
+      opt.value = t;
+      opt.textContent = t;
+      typeSelect.appendChild(opt);
+    });
+
+    // Options für Jahre
+    Array.from(allYears).sort().forEach(function(y) {
+      var opt = document.createElement("option");
+      opt.value = y;
+      opt.textContent = y;
+      yearSelect.appendChild(opt);
+    });
+
+    // Options für Namen
+    Array.from(allNames).sort().forEach(function(n) {
+      var opt = document.createElement("option");
+      opt.value = n;
+      opt.textContent = n;
+      nameSelect.appendChild(opt);
+    });
+
+    // Filter aktualisieren (deine vorhandene Funktion)
+    filterMarkers();
+  }
+});
 </script>
 
 </body>
