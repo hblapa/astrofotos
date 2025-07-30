@@ -72,6 +72,7 @@
     }
   </style>
 </head>
+
 <body oncontextmenu="return false;">
 
 <div id="title">Astrofotos sortiert nach Himmelskoordinaten (RA/DEC)</div>
@@ -82,6 +83,9 @@
   <select id="typeFilter"><option value="Alle">Alle</option></select><br />
   <label for="yearFilter">Aufnahmejahr:</label><br />
   <select id="yearFilter"><option value="Alle">Alle</option></select><br />
+  <label for="nameFilter">Objekt:</label><br />
+  <select id="nameFilter" style="max-width: 130px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
+  <option value="Alle">Alle</option></select><br />  
   <label><input type="checkbox" id="toggleSeasons" /> Jahreszeiten-Layer</label><br />
   <button id="resetViewBtn" style="margin-top:10px; padding:5px 10px;">🔁 Ansicht zurücksetzen</button>
 </div>
@@ -114,7 +118,7 @@
   for (let ra = 0; ra <= 360; ra += 30) {
     const raHours = ra === 360 ? 24 : (ra / 15) % 24;
     const label = `${raHours}h`;
-    L.marker([85, ra], {
+    L.marker([90, ra], {
       icon: L.divIcon({ className: 'ra-label', html: `<div style="color:white;font-size:10px;text-align:center;">${label}</div>`, iconSize: [30, 12], iconAnchor: [15, 0] }),
       interactive: false
     }).addTo(map);
@@ -123,7 +127,7 @@
   // Dec-Labels
   for (let dec = -60; dec <= 60; dec += 30) {
     const label = `${dec >= 0 ? '+' : ''}${dec}°`;
-    L.marker([dec, 2], {
+    L.marker([dec, 1], {
       icon: L.divIcon({ className: 'dec-label', html: `<div style="color:white;font-size:10px;">${label}</div>`, iconSize: [30, 12], iconAnchor: [0, 6] }),
       interactive: false
     }).addTo(map);
@@ -255,16 +259,18 @@ const jahreszeitenLayerGroup = L.layerGroup([
   const markers = [];
   const allData = [];
 
-  function updateMarkers(typeFilter, yearFilter) {
+  function updateMarkers(typeFilter, yearFilter, nameFilter) {
     markers.forEach(m => map.removeLayer(m));
     markers.length = 0;
 
     allData.forEach((row) => {
       const typArray = row.typ ? row.typ.split(',').map(t => t.trim()) : [];
       const jahr = row.aufnahmejahr || "";
+      const name = row.name || "";
 
       if ((typeFilter === "Alle" || typArray.includes(typeFilter)) &&
-          (yearFilter === "Alle" || jahr === yearFilter)) {
+          (yearFilter === "Alle" || jahr === yearFilter) &&
+          (nameFilter === "Alle" || name === nameFilter)) {
 
         const lat = parseFloat(row.dec);
         const lon = parseFloat(row.ra);
@@ -332,44 +338,102 @@ const jahreszeitenLayerGroup = L.layerGroup([
     });
   }
 
+  // Globaler Speicher für alle CSV-Daten
+  
   Papa.parse("marker.csv", {
     download: true,
     header: true,
     complete: function(results) {
+      // 1. CSV-Daten sammeln
       allData.push(...results.data);
 
+      // 2. Sets für Typ, Jahr und Name
       const typeSet = new Set();
       const yearSet = new Set();
 
       allData.forEach(row => {
-        if (row.typ) row.typ.split(',').forEach(t => typeSet.add(t.trim()));
-        if (row.aufnahmejahr) yearSet.add(row.aufnahmejahr);
+        if (row.typ)
+          row.typ
+            .split(",")
+            .map(t => t.trim())
+            .forEach(t => typeSet.add(t));
+        if (row.aufnahmejahr)
+          yearSet.add(row.aufnahmejahr);
       });
 
+      // 3. Select-Elemente referenzieren
       const typeSelect = document.getElementById("typeFilter");
       const yearSelect = document.getElementById("yearFilter");
+      const nameSelect = document.getElementById("nameFilter");
 
+      // 5. Typ- und Jahr-Optionen befüllen
       [...typeSet].sort().forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        typeSelect.appendChild(opt);
+        typeSelect.appendChild(new Option(t, t));
       });
-
       [...yearSet].sort().forEach(y => {
-        const opt = document.createElement("option");
-        opt.value = y;
-        opt.textContent = y;
-        yearSelect.appendChild(opt);
+        yearSelect.appendChild(new Option(y, y));
       });
 
-      typeSelect.addEventListener("change", () => updateMarkers(typeSelect.value, yearSelect.value));
-      yearSelect.addEventListener("change", () => updateMarkers(typeSelect.value, yearSelect.value));
+      // 6. Funktion zum Aktualisieren der Namen-Liste & Karte
+      function refresh() {
+        const appliedType = typeSelect.value;
+        const appliedYear = yearSelect.value;
 
-      updateMarkers("Alle", "Alle");
+        // Namen nach Typ & Jahr filtern
+        const dynamicNameSet = new Set();
+        allData.forEach(row => {
+          const typeOK =
+            appliedType === "Alle" ||
+            (row.typ &&
+              row.typ
+                .split(",")
+                .map(t => t.trim())
+                .includes(appliedType));
+          const yearOK =
+            appliedYear === "Alle" ||
+            row.aufnahmejahr === appliedYear;
+
+          if (typeOK && yearOK && row.name) {
+            dynamicNameSet.add(row.name);
+          }
+        });
+
+        // Name-Select neu befüllen
+        nameSelect.innerHTML = "";
+        nameSelect.appendChild(new Option("Alle"));
+        [...dynamicNameSet].sort().forEach(n => {
+          nameSelect.appendChild(new Option(n, n));
+        });
+
+        // Marker auf der Karte aktualisieren
+        updateMarkers(
+          typeSelect.value,
+          yearSelect.value,
+          nameSelect.value
+        );
+      }
+
+// 7. Event-Listener setzen
+
+// a) Typ & Jahr lösen eine komplette Neu­befüllung + Marker-Update aus
+[typeSelect, yearSelect].forEach(sel =>
+  sel.addEventListener('change', refresh)
+);
+
+// b) Name löst *nur* den Marker-Update aus
+nameSelect.addEventListener('change', () => {
+  updateMarkers(
+    typeSelect.value,
+    yearSelect.value,
+    nameSelect.value
+  );
+});
+
+
+// 8. Initialer Aufruf
+refresh();
     }
   });
-
   document.getElementById("resetViewBtn").addEventListener("click", () => map.fitBounds(bounds));
 </script>
 
