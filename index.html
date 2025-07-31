@@ -70,6 +70,101 @@
       padding: 4px;
       font-size: 14px;
     }
+
+/* --- Media Queries für kleinere Bildschirme --- */
+@media (max-width: 768px) { /* Diese Regeln gelten für Bildschirme bis 768px Breite (Tablets und Handys) */
+  #title {
+    font-size: 14px; /* Kleinere Schrift für den Titel */
+    padding: 8px 10px;
+    width: calc(100% - 20px); /* Nimmt fast die ganze Breite ein, mit 10px Rand auf jeder Seite */
+    text-align: center;
+    top: 5px; /* Etwas höher positionieren */
+  }
+
+  #controls {
+    top: 55px; /* Verschiebt die Filter unter den Titel */
+    right: auto; /* Entfernt die rechte Ausrichtung */
+    left: 10px; /* Platziert es links */
+    width: calc(100% - 20px); /* Nimmt fast die ganze Breite ein */
+    padding: 8px; /* Etwas weniger Innenabstand */
+    box-sizing: border-box; /* Stellt sicher, dass Padding in der Breite enthalten ist */
+  }
+
+  #controls select,
+  #controls input[type="checkbox"],
+  #controls button {
+    font-size: 12px; /* Kleinere Schrift in den Filtern */
+    padding: 2px;
+    margin: 3px 0;
+  }
+
+  #nameFilter {
+    max-width: 100%; /* Erlaubt dem Objekt-Dropdown, die volle Breite zu nutzen */
+  }
+
+  #infoButton {
+    bottom: 10px; /* Am unteren Rand lassen */
+    right: 10px; /* Am rechten Rand lassen */
+    top: auto; /* Entfernt die feste Top-Positionierung */
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  #infoBox {
+    bottom: 50px; /* Über dem Info-Button positionieren */
+    right: 10px;
+    top: auto; /* Entfernt die feste Top-Positionierung */
+    width: calc(100% - 40px); /* Nimmt fast die ganze Breite ein (mit etwas mehr Rand) */
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  #infoBox h3 {
+    font-size: 16px; /* Überschrift in der Info-Box anpassen */
+    margin-top: 0;
+  }
+}
+
+/* Optional: Noch kleinere Bildschirme (z.B. iPhone SE) */
+@media (max-width: 480px) {
+  #title {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  #controls, #infoBox {
+    padding: 6px;
+  }
+}
+
+/* Angepasstes CSS für die Einzüge in der Info-Box */
+#infoBox ul {
+    list-style: none; /* Entfernt die Standard-Bulletpunkte des Browsers */
+    padding: 0;      /* Entfernt den Standard-Padding der Liste */
+    margin: 0;       /* Entfernt den Standard-Margin der Liste */
+}
+
+#infoBox li {
+    /* WICHTIG: Verwende flexbox für perfekten hängenden Einzug */
+    display: flex;
+    align-items: baseline; /* Richtet die erste Textzeile am Bullet aus */
+    margin-bottom: 0.5em; /* Etwas Abstand zwischen den Listenelementen */
+}
+
+#infoBox li::before {
+    content: "• "; /* Dein benutzerdefinierter Bullet-Punkt */
+    color: white; /* Farbe deines Bullets */
+    /* Passt den Abstand des Bullets zum Text an */
+    margin-right: 0.5em; /* Abstand zwischen Bullet und Textanfang */
+    /* Macht den Bullet nicht teil des Flex-Contents, aber er ist da */
+    flex-shrink: 0; /* Verhindert, dass das Bullet kleiner wird bei wenig Platz */
+}
+
+/* Optional: Korrektur für den ersten p-Tag, falls er zu weit eingerückt ist */
+#infoBox p:first-of-type {
+    padding-left: 0;
+    text-indent: 0;
+}
+
   </style>
 </head>
 
@@ -90,21 +185,79 @@
   <button id="resetViewBtn" style="margin-top:10px; padding:5px 10px;">🔁 Ansicht zurücksetzen</button>
 </div>
 
+<div id="infoButton" style="
+    position: absolute;
+    top: 300px;
+    right: 10px;
+    background: rgba(18, 18, 18, 0.7);
+    color: white;
+    padding: 8px 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    z-index: 1000;
+    cursor: pointer;
+">ⓘ Info</div>
+
+<div id="infoBox" style="
+    position: absolute;
+    top: 350px; /* Platziert die Box unter dem Info-Button */
+    right: 10px;
+    width: 280px; /* Passe die Breite nach Bedarf an */
+    background: rgba(18, 18, 18, 0.85); /* Etwas dunkler für besseren Kontrast */
+    color: white;
+    padding: 15px;
+    border-radius: 6px;
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    display: none; /* Standardmäßig versteckt */
+    font-size: 14px;
+    line-height: 1.5;
+">
+    <h3>Meine Astrofotos!</h3>
+    <p>Sortiert nach ihren Himmelskoordinaten (Rektaszension und Deklination).</p>
+    <p><strong>Bedienung:</strong></p> <ul> <li>Ziehen und Zoomen mit der Maus.</li>
+        <li>Klick auf die Vorschaumarker, um ein Detail-Popupfenster zu sehen.</li>
+        <li>Klick auf das Popup-Bild, um das Vollbild mit Zoomfunktion zu öffnen.</li>
+        <li>Filter oben rechts, um Fotos nach Typ, Aufnahmejahr oder Objekt zu wählen.</li>
+    </ul> <p style="font-size: 12px; opacity: 0.7;">
+        © 2025 [Johann Braun]. Alle Rechte vorbehalten. Unerlaubte Nutzung ist nicht gestattet.
+    </p>
+    <button id="closeInfoBox" style="
+        background: none;
+        border: 1px solid white;
+        color: white;
+        padding: 5px 10px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 4px;
+        float: right;
+    ">Schließen</button>
+    <div style="clear:both;"></div>
+</div>
+
 <div id="map"></div>
 
 <script type="module">
   import PhotoSwipe from 'https://unpkg.com/photoswipe@5.4.4/dist/photoswipe.esm.min.js';
 
+  const imageBounds = [[-90, 0], [90, 360]];
+  const mapMaxBounds = [[-95, -5], [95, 365]];
+
   const map = L.map('map', {
     crs: L.CRS.Simple,
-    minZoom: -5,
     maxZoom: 8,
-    zoomControl: false
+    zoomControl: false,
+    maxBounds: mapMaxBounds, 
+    maxBoundsViscosity: 1.0 // Macht, dass die Karte nicht über die Grenzen hinauszieht und dann zurückfedert
   });
 
-  const bounds = [[-90, 0], [90, 360]];
-  L.imageOverlay('background_4k.jpg', bounds).addTo(map);
-  map.fitBounds(bounds);
+  L.imageOverlay('background_4k.jpg', imageBounds).addTo(map);
+  map.fitBounds(imageBounds);
+  const initialZoom = map.getZoom(); // Speichert den aktuellen (optimalen) Zoomlevel
+
+  // NEU: Setze den minZoom auf diesen berechneten Wert
+  map.setMinZoom(initialZoom);
 
   // Gitterlinien
   for (let ra = 0; ra <= 360; ra += 30) {
@@ -259,85 +412,100 @@ const jahreszeitenLayerGroup = L.layerGroup([
   const markers = [];
   const allData = [];
 
-  function updateMarkers(typeFilter, yearFilter, nameFilter) {
-    markers.forEach(m => map.removeLayer(m));
-    markers.length = 0;
+function updateMarkers(typeFilter, yearFilter, nameFilter) {
+  markers.forEach(m => map.removeLayer(m));
+  markers.length = 0;
 
-    allData.forEach((row) => {
-      const typArray = row.typ ? row.typ.split(',').map(t => t.trim()) : [];
-      const jahr = row.aufnahmejahr || "";
-      const name = row.name || "";
+  // NEU: Variable zum Speichern der Koordinaten des zu zoomenden Markers
+  let targetMarkerCoords = null;
 
-      if ((typeFilter === "Alle" || typArray.includes(typeFilter)) &&
-          (yearFilter === "Alle" || jahr === yearFilter) &&
-          (nameFilter === "Alle" || name === nameFilter)) {
+  allData.forEach((row) => {
+    const typArray = row.typ ? row.typ.split(',').map(t => t.trim()) : [];
+    const jahr = row.aufnahmejahr || "";
+    const name = row.name || ""; // Objektname aus den Daten
 
-        const lat = parseFloat(row.dec);
-        const lon = parseFloat(row.ra);
-        const name = row.name || "";
-        const image = row.image || "";
-        const thumb = row.thumb || "";
+    if ((typeFilter === "Alle" || typArray.includes(typeFilter)) &&
+        (yearFilter === "Alle" || jahr === yearFilter) &&
+        (nameFilter === "Alle" || name === nameFilter)) { // filtert die Daten wie bisher
 
-        if (!isNaN(lat) && !isNaN(lon) && image && thumb) {
+      const lat = parseFloat(row.dec);
+      const lon = parseFloat(row.ra);
+      const image = row.image || "";
+      const thumb = row.thumb || "";
+
+      if (!isNaN(lat) && !isNaN(lon) && image && thumb) {
         const icon = L.divIcon({
           html: `<div class="custom-thumb"><img src="${thumb}" width="60" height="40"></div>`,
-          className: "", // wichtig, sonst übernimmt Leaflet Standard-Styles
+          className: "",
           iconSize: [60, 40],
           iconAnchor: [30, 20],
           popupAnchor: [0, -20]
         });
-          const marker = L.marker([lat, lon], { icon }).addTo(map);
+        const marker = L.marker([lat, lon], { icon }).addTo(map);
 
-          const popupContent = document.createElement('div');
-          popupContent.innerHTML = `
-            <b>${name}</b><br />
-            <img src="${thumb}" alt="${name}" data-full="${image}" style="max-width:100%; height:auto; cursor:pointer;" /><br />
-            Typ: ${typArray.join(', ')}<br />
-            Jahr: ${jahr}
-          `;
+        const popupContent = document.createElement('div');
+        popupContent.innerHTML = `
+          <b>${name}</b><br />
+          <img src="${thumb}" alt="${name}" data-full="${image}" style="max-width:100%; height:auto; cursor:pointer;" /><br />
+          Typ: ${typArray.join(', ')}<br />
+          Jahr: ${jahr}
+        `;
 
-          marker.bindPopup(popupContent);
+        marker.bindPopup(popupContent);
 
-          marker.on('popupopen', () => {
-            const img = popupContent.querySelector('img');
-            img.addEventListener('click', () => {
-              const fullSrc = img.getAttribute('data-full');
-              // Hinweis anzeigen
-              const loadingMsg = document.createElement('div');
-              loadingMsg.textContent = "🔄 Bild wird geladen...";
-              loadingMsg.style = "color:white; background:rgba(0,0,0,0.6); padding:5px; margin-top:5px; font-size:14px;";
-              popupContent.appendChild(loadingMsg);
+        marker.on('popupopen', () => {
+          const img = popupContent.querySelector('img');
+          img.addEventListener('click', () => {
+            const fullSrc = img.getAttribute('data-full');
+            // Hinweis anzeigen
+            const loadingMsg = document.createElement('div');
+            loadingMsg.textContent = "🔄 Bild wird geladen...";
+            loadingMsg.style = "color:white; background:rgba(0,0,0,0.6); padding:5px; margin-top:5px; font-size:14px;";
+            popupContent.appendChild(loadingMsg);
 
-              const tempImg = new Image();
-              tempImg.onload = () => {
-                popupContent.removeChild(loadingMsg); // Hinweis entfernen
-                const pswp = new PhotoSwipe({
-                  dataSource: [{
-                    src: fullSrc,
-                    width: tempImg.naturalWidth,
-                    height: tempImg.naturalHeight,
-                    alt: name
-                  }],
-                  showAnimationDuration: 300,
-                  hideAnimationDuration: 300,
-                  zoom: true,
-                  wheelToZoom: true,
-                  allowPanToNext: false,
-                  initialZoomLevel: 'zoom',
-                  bgOpacity: 0.9
-                });
-                pswp.init();
-              };
-              tempImg.src = fullSrc;
-            });
+            const tempImg = new Image();
+            tempImg.onload = () => {
+              popupContent.removeChild(loadingMsg); // Hinweis entfernen
+              const pswp = new PhotoSwipe({
+                dataSource: [{
+                  src: fullSrc,
+                  width: tempImg.naturalWidth,
+                  height: tempImg.naturalHeight,
+                  alt: name
+                }],
+                showAnimationDuration: 300,
+                hideAnimationDuration: 300,
+                zoom: true,
+                wheelToZoom: true,
+                allowPanToNext: false,
+                initialZoomLevel: 'zoom',
+                bgOpacity: 0.9
+              });
+              pswp.init();
+            };
+            tempImg.src = fullSrc;
           });
+        });
 
-          markers.push(marker);
+        markers.push(marker);
+
+        // NEU: Wenn der aktuelle Marker dem ausgewählten Namen im Filter entspricht,
+        // speichern wir seine Koordinaten.
+        if (nameFilter !== "Alle" && name === nameFilter) {
+            targetMarkerCoords = [lat, lon];
         }
       }
-    });
-  }
+    }
+  });
 
+  // NEU: Nach dem Erstellen aller Marker, wenn ein spezifischer Name ausgewählt wurde,
+  // zoomen wir zu diesem Marker.
+if (targetMarkerCoords) {
+    const latLng = L.latLng(targetMarkerCoords[0], targetMarkerCoords[1]);
+    // Fliegt direkt zum Marker und setzt den Zoom auf z.B. 5 oder 6
+    map.flyTo(latLng, 5, { duration: 1.0 }); // Experimentiere mit dem Zoomlevel (5 ist nur ein Beispiel)
+}
+}
   // Globaler Speicher für alle CSV-Daten
   
   Papa.parse("marker.csv", {
@@ -434,7 +602,32 @@ nameSelect.addEventListener('change', () => {
 refresh();
     }
   });
-  document.getElementById("resetViewBtn").addEventListener("click", () => map.fitBounds(bounds));
+
+  document.getElementById("resetViewBtn").addEventListener("click", () => map.fitBounds(imageBounds));
+
+const infoButton = document.getElementById('infoButton');
+const infoBox = document.getElementById('infoBox');
+const closeInfoBox = document.getElementById('closeInfoBox');
+
+// Event-Listener, um die Info-Box zu öffnen, wenn der "Infos"-Button geklickt wird
+infoButton.addEventListener('click', () => {
+    infoBox.style.display = 'block'; // Zeigt die Box an
+});
+
+// Event-Listener, um die Info-Box zu schließen, wenn der "Schließen"-Button geklickt wird
+closeInfoBox.addEventListener('click', () => {
+    infoBox.style.display = 'none'; // Versteckt die Box
+});
+
+// Optional: Info-Box schließen, wenn man irgendwo außerhalb der Box oder des Buttons klickt
+document.addEventListener('click', (event) => {
+    // Prüft, ob der Klick NICHT auf die Info-Box selbst UND NICHT auf den Info-Button war,
+    // UND ob die Info-Box gerade sichtbar ist.
+    if (!infoBox.contains(event.target) && !infoButton.contains(event.target) && infoBox.style.display === 'block') {
+        infoBox.style.display = 'none';
+    }
+});
+
 </script>
 
 </body>
