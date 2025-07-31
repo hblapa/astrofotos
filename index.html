@@ -182,6 +182,7 @@
   <select id="nameFilter" style="max-width: 130px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
   <option value="Alle">Alle</option></select><br />  
   <label><input type="checkbox" id="toggleSeasons" /> Jahreszeiten-Layer</label><br />
+  <button id="resetFiltersBtn" style="margin-top:10px; padding:5px 10px;">↩️ Alle Filter zurücksetzen</button><br />
   <button id="resetViewBtn" style="margin-top:10px; padding:5px 10px;">🔁 Ansicht zurücksetzen</button>
 </div>
 
@@ -242,7 +243,7 @@
   import PhotoSwipe from 'https://unpkg.com/photoswipe@5.4.4/dist/photoswipe.esm.min.js';
 
   const imageBounds = [[-90, 0], [90, 360]];
-  const mapMaxBounds = [[-95, -5], [95, 365]];
+  const mapMaxBounds = [[-105, -15], [105, 375]];
 
   const map = L.map('map', {
     crs: L.CRS.Simple,
@@ -581,25 +582,30 @@ if (targetMarkerCoords) {
         );
       }
 
-// 7. Event-Listener setzen
+      // 7. Event-Listener setzen
+      [typeSelect, yearSelect].forEach(sel =>
+        sel.addEventListener('change', refresh)
+      );
 
-// a) Typ & Jahr lösen eine komplette Neu­befüllung + Marker-Update aus
-[typeSelect, yearSelect].forEach(sel =>
-  sel.addEventListener('change', refresh)
-);
+      nameSelect.addEventListener('change', () => {
+        updateMarkers(
+          typeSelect.value,
+          yearSelect.value,
+          nameSelect.value
+        );
+      });
 
-// b) Name löst *nur* den Marker-Update aus
-nameSelect.addEventListener('change', () => {
-  updateMarkers(
-    typeSelect.value,
-    yearSelect.value,
-    nameSelect.value
-  );
-});
+      // 8. Initialer Aufruf
+      refresh();
 
-
-// 8. Initialer Aufruf
-refresh();
+      // NEU: Event-Listener für den "Alle Filter zurücksetzen" Button
+      const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+      resetFiltersBtn.addEventListener('click', () => {
+        document.getElementById('typeFilter').value = 'Alle';
+        document.getElementById('yearFilter').value = 'Alle';
+        document.getElementById('nameFilter').value = 'Alle';
+        refresh(); // Ruft refresh auf, um Marker mit allen zurückgesetzten Filtern zu aktualisieren
+      });
     }
   });
 
