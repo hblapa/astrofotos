@@ -37,7 +37,7 @@
        border-radius: 6px;
        z-index: 1000;
        white-space: nowrap; /* verhindert Zeilenumbruch */
-      }
+     }
 
     .custom-thumb img {
     border: 2px solid white;
@@ -178,7 +178,7 @@
   <select id="typeFilter"><option value="Alle">Alle</option></select><br />
   <label for="yearFilter">Aufnahmejahr:</label><br />
   <select id="yearFilter"><option value="Alle">Alle</option></select><br />
-  <label for="nameFilter">Objekt:</label><br />
+  <label for="nameFilter">Fotos:</label><br />
   <select id="nameFilter" style="max-width: 130px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
   <option value="Alle">Alle</option></select><br />  
   <label><input type="checkbox" id="toggleSeasons" /> Jahreszeiten-Layer</label><br />
@@ -535,6 +535,10 @@ if (targetMarkerCoords) {
       const yearSelect = document.getElementById("yearFilter");
       const nameSelect = document.getElementById("nameFilter");
 
+      // NEU: Referenz auf das Label-Element für den Namenfilter
+      const nameLabel = document.querySelector('label[for="nameFilter"]');
+      const originalNameLabelText = nameLabel.textContent; // "Objekt:"
+
       // 5. Typ- und Jahr-Optionen befüllen
       [...typeSet].sort().forEach(t => {
         typeSelect.appendChild(new Option(t, t));
@@ -570,9 +574,14 @@ if (targetMarkerCoords) {
         // Name-Select neu befüllen
         nameSelect.innerHTML = "";
         nameSelect.appendChild(new Option("Alle"));
-        [...dynamicNameSet].sort().forEach(n => {
+        // Hier wurde die korrigierte Variable 'sortedNames' hinzugefügt
+        const sortedNames = [...dynamicNameSet].sort();
+        sortedNames.forEach(n => {
           nameSelect.appendChild(new Option(n, n));
         });
+
+        // NEU: Label-Text mit der Anzahl aktualisieren
+        nameLabel.textContent = `${originalNameLabelText} (${sortedNames.length})`;
 
         // Marker auf der Karte aktualisieren
         updateMarkers(
@@ -633,7 +642,6 @@ document.addEventListener('click', (event) => {
         infoBox.style.display = 'none';
     }
 });
-
 </script>
 
 </body>
