@@ -1,7 +1,6 @@
 name,ra,dec,image,thumb,typ,aufnahmejahr
 Abell 2151 Herkuleshaufen,241.275,17.7166666666667,image/Abell2151 Herkuleshaufen.jpg,image/thumbs/thumb_Abell2151 Herkuleshaufen.jpg,Galaxienhaufen,2021
 Barnard92,273.875,-18.21666667,image/Barnard92_beschriftet.jpg,image/thumbs/thumb_Barnard92_beschriftet.jpg,Dunkelnebel,2024
-Cirrusnebel,312.6353,30.923446,image/Cirrusnebel_1.jpg,image/thumbs/thumb_Cirrusnebel_1.jpg,Nebel,2022
 Abell 1656 Coma Haufen,194.95,27.9833333333333,image/Coma_Cluster_beschriftet.jpg,image/thumbs/thumb_Coma_Cluster_beschriftet.jpg,Galaxienhaufen,2024
 IC1805/IC1848 Herz-/Seelennebel,38.175,61.45,image/Herz_u_Seele_TV.jpg,image/thumbs/thumb_Herz_u_Seele_TV.jpg,Nebel,2022
 Sh2-157/NGC 7635 Hummerscheren-/Blasenebel,349.5491667,60.60666667,image/Hummer_Blase_beschriftet.jpg,image/thumbs/thumb_Hummer_Blase_beschriftet.jpg,Nebel,2021
@@ -79,3 +78,4 @@ M8/M20 Lagunen-/Trifidnebel,271.5,-23.6,image/M8_M20_beschriftet.jpg,image/thumb
 Sh2-129 / Ou4 Fledermaus-/Tintenfischnebel,316.9,59.7,image/Sh2_129_Ou4_beschriftet.jpg,image/thumbs/thumb_Sh2_129_Ou4_beschriftet.jpg,Nebel,2025
 IC1396_BBNB Elefantenrüsselnebel,324.9,57.5,image/IC1396_BBNB_beschriftet.jpg,image/thumbs/thumb_IC1396_BBNB_beschriftet.jpg,Nebel,2025
 LDN1089_beschriftet.jpg,308.1,63.4,image/LDN1089_beschriftet.jpg,image/thumbs/thumb_LDN1089_beschriftet.jpg,Dunkelnebel,2025
+Cirrusnebel,313.8,30.9,image/Cirrusnebel_beschriftet.jpg,image/thumbs/thumb_Cirrusnebel_beschriftet.jpg,Nebel,2022
