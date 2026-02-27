@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Astrofoto-Karte</title>
 
+  <!-- Fuse.js für Suche -->
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -178,9 +181,35 @@
   <select id="typeFilter"><option value="Alle">Alle</option></select><br />
   <label for="yearFilter">Aufnahmejahr:</label><br />
   <select id="yearFilter"><option value="Alle">Alle</option></select><br />
+  
+  <label for="searchInput">Suche (Fuzzy):</label><br />
+  <div style="position: relative; margin-bottom: 10px;">
+    <input type="text" id="searchInput" placeholder="z.B. Pferd..." style="width: 130px; padding: 4px; box-sizing: border-box;">
+    <ul id="fuzzyResults" style="
+      position: absolute; 
+      top: 28px; 
+      left: 0; 
+      width: 200px; 
+      background: rgba(30, 30, 30, 0.95); 
+      color: white; 
+      list-style: none; 
+      padding: 0; 
+      margin: 0; 
+      max-height: 250px; 
+      overflow-y: auto; 
+      display: none; 
+      z-index: 2000;
+      border: 1px solid #555;
+      border-radius: 4px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    "></ul>
+  </div>
+
   <label for="nameFilter">Fotos:</label><br />
   <select id="nameFilter" style="max-width: 130px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
-  <option value="Alle">Alle</option></select><br />  
+    <option value="Alle">Alle</option>
+  </select><br />  
+  
   <label><input type="checkbox" id="toggleSeasons" /> Jahreszeiten-Layer</label><br />
   <button id="resetFiltersBtn" style="margin-top:10px; padding:5px 10px;">↩️ Alle Filter zurücksetzen</button><br />
   <button id="resetViewBtn" style="margin-top:10px; padding:5px 10px;">🔁 Ansicht zurücksetzen</button>
@@ -188,7 +217,7 @@
 
 <div id="infoButton" style="
     position: absolute;
-    top: 300px;
+    top: 360px;
     right: 10px;
     background: rgba(18, 18, 18, 0.7);
     color: white;
@@ -202,7 +231,7 @@
 
 <div id="infoBox" style="
     position: absolute;
-    top: 350px; /* Platziert die Box unter dem Info-Button */
+    top: 410px; /* Platziert die Box unter dem Info-Button */
     right: 10px;
     width: 280px; /* Passe die Breite nach Bedarf an */
     background: rgba(18, 18, 18, 0.85); /* Etwas dunkler für besseren Kontrast */
@@ -576,6 +605,7 @@ if (targetMarkerCoords) {
         nameSelect.appendChild(new Option("Alle"));
         // Hier wurde die korrigierte Variable 'sortedNames' hinzugefügt
         const sortedNames = [...dynamicNameSet].sort();
+        initFuse(sortedNames);
         sortedNames.forEach(n => {
           nameSelect.appendChild(new Option(n, n));
         });
@@ -613,6 +643,7 @@ if (targetMarkerCoords) {
         document.getElementById('typeFilter').value = 'Alle';
         document.getElementById('yearFilter').value = 'Alle';
         document.getElementById('nameFilter').value = 'Alle';
+        
         refresh(); // Ruft refresh auf, um Marker mit allen zurückgesetzten Filtern zu aktualisieren
       });
     }
@@ -620,29 +651,60 @@ if (targetMarkerCoords) {
 
   document.getElementById("resetViewBtn").addEventListener("click", () => map.fitBounds(imageBounds));
 
-const infoButton = document.getElementById('infoButton');
-const infoBox = document.getElementById('infoBox');
-const closeInfoBox = document.getElementById('closeInfoBox');
+// --- HIER DIE FUZZY-LOGIK INNERHALB DES SCRIPTS ---
+  let fuse;
+  const searchInput = document.getElementById('searchInput');
+  const fuzzyResults = document.getElementById('fuzzyResults');
 
-// Event-Listener, um die Info-Box zu öffnen, wenn der "Infos"-Button geklickt wird
-infoButton.addEventListener('click', () => {
-    infoBox.style.display = 'block'; // Zeigt die Box an
-});
+  window.initFuse = (names) => {
+    fuse = new Fuse(names, {
+      threshold: 0.4,
+      distance: 100
+    });
+  };
 
-// Event-Listener, um die Info-Box zu schließen, wenn der "Schließen"-Button geklickt wird
-closeInfoBox.addEventListener('click', () => {
-    infoBox.style.display = 'none'; // Versteckt die Box
-});
+  searchInput.addEventListener('input', () => {
+    const term = searchInput.value;
+    fuzzyResults.innerHTML = "";
+    if (term.length > 0 && fuse) {
+      const results = fuse.search(term);
+      if (results.length > 0) {
+        fuzzyResults.style.display = "block";
+        results.slice(0, 15).forEach(result => {
+          const li = document.createElement('li');
+          li.textContent = result.item;
+          li.style = "padding: 8px; cursor: pointer; border-bottom: 1px solid #444; font-size: 13px;";
+          li.onmouseover = () => li.style.backgroundColor = "#444";
+          li.onmouseout = () => li.style.backgroundColor = "transparent";
+          li.addEventListener('click', () => {
+            const selectedName = result.item;
+            document.getElementById('nameFilter').value = selectedName; 
+            searchInput.value = ""; 
+            fuzzyResults.style.display = "none";
+            updateMarkers(document.getElementById("typeFilter").value, document.getElementById("yearFilter").value, selectedName);
+          });
+          fuzzyResults.appendChild(li);
+        });
+      } else { fuzzyResults.style.display = "none"; }
+    } else { fuzzyResults.style.display = "none"; }
+  });
 
-// Optional: Info-Box schließen, wenn man irgendwo außerhalb der Box oder des Buttons klickt
-document.addEventListener('click', (event) => {
-    // Prüft, ob der Klick NICHT auf die Info-Box selbst UND NICHT auf den Info-Button war,
-    // UND ob die Info-Box gerade sichtbar ist.
-    if (!infoBox.contains(event.target) && !infoButton.contains(event.target) && infoBox.style.display === 'block') {
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !fuzzyResults.contains(e.target)) {
+      fuzzyResults.style.display = "none";
+    }
+    // Deine infoBox Logik
+    if (!infoBox.contains(e.target) && !infoButton.contains(e.target) && infoBox.style.display === 'block') {
         infoBox.style.display = 'none';
     }
-});
-</script>
+  });
 
-</body>
+  // InfoBox-Logik (muss auch hier drin bleiben)
+  const infoButton = document.getElementById('infoButton');
+  const infoBox = document.getElementById('infoBox');
+  const closeInfoBox = document.getElementById('closeInfoBox');
+  infoButton.addEventListener('click', () => infoBox.style.display = 'block');
+  closeInfoBox.addEventListener('click', () => infoBox.style.display = 'none');
+
+</script> </body>
 </html>
